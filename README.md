@@ -25,32 +25,24 @@ Connect to the DK's `VCOM1/ttyACM1` to see the logging output.
 ```
 *** Booting nRF Connect SDK v3.1.0-6c6e5b32496e ***
 *** Using Zephyr OS v4.1.99-1612683d4010 ***
-[00:00:00.000,330] <inf> dietemp_ble: Sample to measure die temp periodically on NRF54L15-DK
-[00:00:00.000,387] <inf> bt_sdc_hci_driver: SoftDevice Controller build revision: 
+[00:00:00.000,329] <inf> dietemp_ble: Sample to measure die temp periodically on NRF54L15-DK
+[00:00:00.000,386] <inf> bt_sdc_hci_driver: SoftDevice Controller build revision: 
                                             fc de 41 eb a2 d1 42 24  00 b5 f8 57 9f ac 9d 9e |..A...B$ ...W....
                                             aa c9 b4 34                                      |...4             
-[00:00:00.001,649] <inf> bt_hci_core: HW Platform: Nordic Semiconductor (0x0002)
-[00:00:00.001,662] <inf> bt_hci_core: HW Variant: nRF54Lx (0x0005)
-[00:00:00.001,675] <inf> bt_hci_core: Firmware: Standard Bluetooth controller (0x00) Version 252.16862 Build 1121034987
-[00:00:00.002,110] <inf> bt_hci_core: HCI transport: SDC
-[00:00:00.002,170] <inf> bt_hci_core: Identity: CA:9A:0D:B5:2A:CC (random)
-[00:00:00.002,185] <inf> bt_hci_core: HCI: version 6.1 (0x0f) revision 0x3069, manufacturer 0x0059
-[00:00:00.002,198] <inf> bt_hci_core: LMP: version 6.1 (0x0f) subver 0x3069
-[00:00:00.002,203] <inf> dietemp_ble: Bluetooth initialized
+[00:00:00.001,644] <inf> bt_hci_core: HW Platform: Nordic Semiconductor (0x0002)
+[00:00:00.001,657] <inf> bt_hci_core: HW Variant: nRF54Lx (0x0005)
+[00:00:00.001,669] <inf> bt_hci_core: Firmware: Standard Bluetooth controller (0x00) Version 252.16862 Build 1121034987
+[00:00:00.002,106] <inf> bt_hci_core: HCI transport: SDC
+[00:00:00.002,166] <inf> bt_hci_core: Identity: CA:9A:0D:B5:2A:CC (random)
+[00:00:00.002,180] <inf> bt_hci_core: HCI: version 6.1 (0x0f) revision 0x3069, manufacturer 0x0059
+[00:00:00.002,193] <inf> bt_hci_core: LMP: version 6.1 (0x0f) subver 0x3069
+[00:00:00.002,198] <inf> dietemp_ble: Bluetooth initialized
 
-[00:00:00.002,801] <inf> dietemp_ble: Advertising successfully started
-[00:00:00.002,826] <inf> dietemp_ble: dietemp thread spawned from main priority 5
-[00:00:00.002,898] <inf> dietemp_ble: NRF_TEMP->TEMP=CONVERSION: 27.50 deg C
-[00:00:05.003,234] <inf> dietemp_ble: NRF_TEMP->TEMP=CONVERSION: 27.75 deg C
-[00:00:10.003,586] <inf> dietemp_ble: NRF_TEMP->TEMP=CONVERSION: 27.50 deg C
-[00:00:15.003,938] <inf> dietemp_ble: NRF_TEMP->TEMP=CONVERSION: 27.25 deg C
-[00:00:20.004,291] <inf> dietemp_ble: NRF_TEMP->TEMP=CONVERSION: 27.25 deg C
-[00:00:25.004,642] <inf> dietemp_ble: NRF_TEMP->TEMP=CONVERSION: 27.25 deg C
-[00:00:30.004,995] <inf> dietemp_ble: NRF_TEMP->TEMP=CONVERSION: 27.25 deg C
-[00:00:35.005,346] <inf> dietemp_ble: NRF_TEMP->TEMP=CONVERSION: 27.25 deg C
-[00:00:40.005,699] <inf> dietemp_ble: NRF_TEMP->TEMP=CONVERSION: 27.00 deg C
-[00:00:45.006,050] <inf> dietemp_ble: NRF_TEMP->TEMP=CONVERSION: 27.25 deg C
-[00:00:50.006,403] <inf> dietemp_ble: NRF_TEMP->TEMP=CONVERSION: 27.00 deg C
+[00:00:00.002,794] <inf> dietemp_ble: Advertising successfully started
+[00:00:00.002,820] <inf> dietemp_ble: dietemp thread spawned from main priority 4
+[00:00:00.002,908] <inf> dietemp_ble: NRF_TEMP->TEMP=CONVERSION: 28.25 deg C
+[00:00:05.003,255] <inf> dietemp_ble: NRF_TEMP->TEMP=CONVERSION: 27.50 deg C
+...
 ```
 
 If you scan for `nrf54l15_die_temp`, you'll see the manufacturer data will have little endian representation of the retval of the mpsl temp getter.
