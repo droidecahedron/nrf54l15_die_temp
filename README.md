@@ -55,3 +55,5 @@ Connect to the DK's `VCOM1/ttyACM1` to see the logging output.
 
 If you scan for `nrf54l15_die_temp`, you'll see the manufacturer data will have little endian representation of the retval of the mpsl temp getter.
 
+<img width="201" height="116" alt="image" src="https://github.com/user-attachments/assets/2df04b4d-ee0c-4d6a-8791-22bc72502ff6" />
+
