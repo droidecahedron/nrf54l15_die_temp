@@ -11,7 +11,7 @@ A simple program to read the [TEMP](https://docs.nordicsemi.com/bundle/ps_nrf54L
 > 
 > So we will borrow the QDEC IRQ and trigger a SW interrupt at the correct priority to ensure safety around reentrancy and around then mpsl/softdevice will check NRF_TEMP.
 >
-> _Please read the comments around all the IRQ work and defines. If you don't take that approach, it will still work sometimes, but there is no guarantee of the reliability of the application with respect to reentrancy, or when your usage of TEMP will have resource contention with the BLE stack._
+> _Please read the comments around all the IRQ work and defines. If you don't run that function at the correct execution priority, it will still work sometimes, but there is no guarantee of the reliability of the application with respect to reentrancy, or when your usage of TEMP will have resource contention with the BLE stack._
 
 From the manual page on TEMP:
 > Operation
