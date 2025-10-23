@@ -5,6 +5,8 @@ A simple program to read the [TEMP](https://docs.nordicsemi.com/bundle/ps_nrf54L
 > [!IMPORTANT]
 >The MSPL will reserve access to the TEMP peripheral if you are enabling Bluetooth in application. TEMP is used for clock calibration when the internal RC oscillator is selected as the clock source.
 > In this case, you will use the nrfxlib API for MPSL to get the die temp via [mpsl_temperature_get()](https://docs.nordicsemi.com/bundle/nrfxlib-apis-latest/page/group_mpsl_temp_ga0be40956c96a226af1083a476fe57148.html#ga0be40956c96a226af1083a476fe57148)
+> One thing you will note is that *"This function must be executed in the same execution priority as mpsl_low_priority_process."*
+> So we will borrow the QDEC IRQ and trigger a SW interrupt at the correct priority to ensure safety around reentrancy and around then mpsl/softdevice will check NRF_TEMP.
 
 From the manual page:
 > Operation
