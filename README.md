@@ -1,5 +1,5 @@
 # nrf54l15_die_temp
-A simple program to read the [TEMP](https://docs.nordicsemi.com/bundle/ps_nrf54L15/page/temp.html) of the nRF54L15 SoC on an nRF54L15-DK to a console.
+A simple program to read the [TEMP](https://docs.nordicsemi.com/bundle/ps_nrf54L15/page/temp.html) of the nRF54L15 SoC on an nRF54L15-DK to a console that also advertises the return of the die temp function via BLE.
 
 # BLE branch
 > [!IMPORTANT]
