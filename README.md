@@ -13,6 +13,7 @@ From the manual page:
 
 # Building and Running
 Typical `west build -b nrf54l15dk/nrf54l15/cpuapp -p` and `west flash --recover`.
+
 Connect to the DK's `VCOM1/ttyACM1` to see the logging output.
 
 # Example Output
