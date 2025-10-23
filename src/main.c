@@ -18,7 +18,7 @@
 #define DEVICE_NAME_LEN (sizeof(DEVICE_NAME) - 1)
 
 #define DIETEMP_THREAD_STACK_SIZE 500
-#define DIETEMP_THREAD_PRIORITY 5
+#define DIETEMP_THREAD_PRIORITY 4
 K_THREAD_STACK_DEFINE(dietemp_stack_area, DIETEMP_THREAD_STACK_SIZE);
 struct k_thread dietemp_thread_data;
 
@@ -77,6 +77,9 @@ void dietemp_thread(void *p1, void *p2, void *p3)
     // mpsl_temperature_get() returns die temp in 0.25degC
     for (;;)
     {
+        //Note:  This function must be executed in the same execution priority as mpsl_low_priority_process.
+        // see mpsl_init.c, mpsl_low_priority_process is in the work handler mpsl_low_prio_work_handler, 
+        //gets submitted in mpsl_low_prio_irq_handler, at MPSL_LOW_PRIO, #defined as MPSL_LOW_PRIO(4)
         int32_t die_temp = mpsl_temperature_get();
         LOG_INF("NRF_TEMP->TEMP=CONVERSION: %.2f deg C", (double)(die_temp / 4.0f));
         adv_mfg_data.die_temp = die_temp / 4;
