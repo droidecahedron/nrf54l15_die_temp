@@ -11,6 +11,11 @@ From the manual page:
 >
 > TEMP only supports one-shot operation, meaning that every TEMP measurement has to be explicitly started using the START task.
 
+> [!IMPORTANT]
+>The MSPL will reserve access to the TEMP peripheral if you are enabling Bluetooth in application. TEMP is used for clock calibration when the internal RC oscillator is selected as the clock source.
+> In this case, you will use the nrfxlib API for MPSL to get the die temp via [mpsl_temperature_get()](https://docs.nordicsemi.com/bundle/nrfxlib-apis-latest/page/group_mpsl_temp_ga0be40956c96a226af1083a476fe57148.html#ga0be40956c96a226af1083a476fe57148)
+> See the [ble](https://github.com/droidecahedron/nrf54l15_die_temp/tree/ble) branch for an example application utilizing this.
+
 # Building and Running
 Typical `west build -b nrf54l15dk/nrf54l15/cpuapp -p` and `west flash --recover`.
 
