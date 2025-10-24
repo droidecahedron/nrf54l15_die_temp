@@ -13,6 +13,8 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
+#include <zephyr/timing/timing.h>
+
 #define COMPANY_ID_CODE 0x0059
 #define DEVICE_NAME CONFIG_BT_DEVICE_NAME
 #define DEVICE_NAME_LEN (sizeof(DEVICE_NAME) - 1)
@@ -98,12 +100,18 @@ void dietemp_thread(void *p1, void *p2, void *p3)
     k_work_init(&die_temp_work, die_temp_work_fn);
     IRQ_DIRECT_CONNECT(DIETEMP_IRQN, DIETEMP_IRQ_PRIO, dietemp_isr, 0);
     irq_enable(DIETEMP_IRQN);
+    timing_t start_time, end_time;
+    uint64_t total_cycles;
+    uint64_t total_ns;
 
     // manpage: https://docs.nordicsemi.com/bundle/ps_nrf54L15/page/temp.html
     // note: If you use BLE, SD uses TEMP. So you need to ask for the temperature.
     // mpsl_temperature_get() returns die temp in 0.25degC
     for (;;)
     {
+        timing_init();
+        timing_start();
+        start_time = timing_counter_get();
         // Note:  This function must be executed in the same execution priority as mpsl_low_priority_process.
         // mpsl_low_priority_process is an interrupt. It will work most of the time..
         // If you call the function from a thread and then the SDC signals that it needs to do some low prio processing
@@ -113,7 +121,11 @@ void dietemp_thread(void *p1, void *p2, void *p3)
         // gets submitted in mpsl_low_prio_irq_handler, at MPSL_LOW_PRIO, #defined as MPSL_LOW_PRIO(4)
         // So we need an IRQ. We will borrow QDEC, only very specific applications are using it.
 
+        
         k_work_submit(&die_temp_work);
+        end_time = timing_counter_get();
+        LOG_INF("die measurement time = %llu ns", timing_cycles_to_ns(timing_cycles_get(&start_time, &end_time)));
+        timing_stop();
 
         LOG_INF("NRF_TEMP->TEMP=CONVERSION: %.2f deg C", (double)(g_die_temp / 4.0f));
         adv_mfg_data.die_temp = g_die_temp / 4;
@@ -135,7 +147,7 @@ int main(void)
         return -1;
     }
 
-    LOG_INF("Bluetooth initialized\n");
+    LOG_INF("Bluetooth initialized");
     k_work_init(&adv_work, adv_work_handler);
     advertising_start();
 
