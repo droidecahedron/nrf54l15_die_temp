@@ -8,6 +8,7 @@ A simple program to read the [TEMP](https://docs.nordicsemi.com/bundle/ps_nrf54L
 > In this case, you will use the nrfxlib API for MPSL to get the die temp via [mpsl_temperature_get()](https://docs.nordicsemi.com/bundle/nrfxlib-apis-latest/page/group_mpsl_temp_ga0be40956c96a226af1083a476fe57148.html#ga0be40956c96a226af1083a476fe57148)
 > 
 > One thing you will note is that *"This function must be executed in the same execution priority as mpsl_low_priority_process."*
+> `mpsl_low_priority_process()` gets called in `mpsl_low_prio_work_handler`, which is submitted in `mpsl_low_prio_irq_handler`, which is set up via `IRQ_CONNECT(CONFIG_MPSL_LOW_PRIO_IRQN, MPSL_LOW_PRIO, mpsl_low_prio_irq_handler, NULL, 0);`, and the priority of the `mpsl_work_q` is [cooperative](https://github.com/nrfconnect/sdk-nrf/blob/b05ea3c420806aaad7af43535766c4130f8e459c/subsys/mpsl/init/mpsl_init.c#L503-L505).
 > 
 > So we will borrow the QDEC IRQ and trigger a SW interrupt at the correct priority to ensure safety around reentrancy and around then mpsl/softdevice will check NRF_TEMP.
 >
