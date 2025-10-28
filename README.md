@@ -8,10 +8,27 @@ A simple program to read the [TEMP](https://docs.nordicsemi.com/bundle/ps_nrf54L
 > In this case, you will use the nrfxlib API for MPSL to get the die temp via [mpsl_temperature_get()](https://docs.nordicsemi.com/bundle/nrfxlib-apis-latest/page/group_mpsl_temp_ga0be40956c96a226af1083a476fe57148.html#ga0be40956c96a226af1083a476fe57148)
 > 
 > One thing you will note is that *"This function must be executed in the same execution priority as mpsl_low_priority_process."*
+> `mpsl_low_priority_process()` 
+> gets called in `mpsl_low_prio_work_handler`, 
+> which is submitted in `mpsl_low_prio_irq_handler`, 
+> which is set up via `IRQ_CONNECT(CONFIG_MPSL_LOW_PRIO_IRQN, MPSL_LOW_PRIO, mpsl_low_prio_irq_handler, NULL, 0);`, 
+> and the priority of the `mpsl_work_q` is [cooperative](https://github.com/nrfconnect/sdk-nrf/blob/b05ea3c420806aaad7af43535766c4130f8e459c/subsys/mpsl/init/mpsl_init.c#L503-L505). 
 > 
-> So we will borrow the QDEC IRQ and trigger a SW interrupt at the correct priority to ensure safety around reentrancy and around then mpsl/softdevice will check NRF_TEMP.
+> Its priority depends on the wireless stack used. By checking the output .config for `BT_CTLR_SDC_RX_PRIO` of this repo, it's 6.
+
+```c
+k_work_queue_start(&mpsl_work_q, mpsl_work_stack,
+			   K_THREAD_STACK_SIZEOF(mpsl_work_stack),
+			   K_PRIO_COOP(CONFIG_MPSL_THREAD_COOP_PRIO), NULL);
+
+config MPSL_THREAD_COOP_PRIO
+	int
+	default 0 if OPENTHREAD
+	default BT_CTLR_SDC_RX_PRIO if BT_LL_SOFTDEVICE
+	default 8
+```
 >
-> _Please read the comments around all the IRQ work and defines. If you don't run that function at the correct execution priority, it will still work sometimes, but there is no guarantee of the reliability of the application with respect to reentrancy, or when your usage of TEMP will have resource contention with the BLE stack._
+> _Please read the comments around all the prio/work and defines. If you don't run that function at the correct execution priority, it will still work sometimes, but there is no guarantee of the reliability of the application with respect to reentrancy, or when your usage of TEMP will have resource contention with the BLE stack._
 
 From the manual page on TEMP:
 > Operation

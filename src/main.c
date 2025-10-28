@@ -17,33 +17,24 @@
 #define DEVICE_NAME CONFIG_BT_DEVICE_NAME
 #define DEVICE_NAME_LEN (sizeof(DEVICE_NAME) - 1)
 
-// hijacking qdec irqn since qdecs rarely used. note some peripherals share irqs.
-// https://docs.nordicsemi.com/bundle/ps_nrf54L15/page/_tmp/nrf54l15/autodita/global.instantiation.html
-#define DIETEMP_IRQN QDEC20_IRQn // You can see all IRQns in the MDK's .h file for the chip
-#define DIETEMP_IRQN_NODELABEL qdec
-#define DIETEMP_IRQ_PRIO (4) // see <sdk>/nrf/subsys/mpsl/init/mpsl_init.c -> MPSL_LOW_PRIO
-
 #define DIETEMP_THREAD_STACK_SIZE 500
 #define DIETEMP_THREAD_PRIORITY 4
 K_THREAD_STACK_DEFINE(dietemp_stack_area, DIETEMP_THREAD_STACK_SIZE);
 struct k_thread dietemp_thread_data;
 
+static struct k_work dietemp_work;
+struct k_work_q dietemp_work_q;
+static K_THREAD_STACK_DEFINE(dietemp_work_stack, 256);
+#define DIETEMP_WORK_PRIO K_PRIO_COOP(CONFIG_MPSL_THREAD_COOP_PRIO)
+
 volatile int32_t g_die_temp;
 
 LOG_MODULE_REGISTER(dietemp_ble, LOG_LEVEL_INF);
 
-ISR_DIRECT_DECLARE(dietemp_isr)
-{
-    g_die_temp = mpsl_temperature_get();
-    ISR_DIRECT_PM();
-    return 1;
-}
-
 // WorkQ item.
-static struct k_work die_temp_work;
 static void die_temp_work_fn(struct k_work *work)
 {
-    NVIC_SetPendingIRQ(DIETEMP_IRQN);
+    g_die_temp = mpsl_temperature_get();
 }
 
 typedef struct adv_mfg_data
@@ -94,26 +85,31 @@ static void advertising_start(void)
 
 void dietemp_thread(void *p1, void *p2, void *p3)
 {
-
-    k_work_init(&die_temp_work, die_temp_work_fn);
-    IRQ_DIRECT_CONNECT(DIETEMP_IRQN, DIETEMP_IRQ_PRIO, dietemp_isr, 0);
-    irq_enable(DIETEMP_IRQN);
+    k_work_queue_start(&dietemp_work_q, dietemp_work_stack, K_THREAD_STACK_SIZEOF(dietemp_work_stack),
+                       DIETEMP_WORK_PRIO, NULL);
+    k_thread_name_set(&dietemp_work_q.thread, "dietemp work");
+    k_work_init(&dietemp_work, die_temp_work_fn);
 
     // manpage: https://docs.nordicsemi.com/bundle/ps_nrf54L15/page/temp.html
     // note: If you use BLE, SD uses TEMP. So you need to ask for the temperature.
     // mpsl_temperature_get() returns die temp in 0.25degC
     for (;;)
     {
-        // Note:  This function must be executed in the same execution priority as mpsl_low_priority_process.
-        // mpsl_low_priority_process is an interrupt. It will work most of the time..
-        // If you call the function from a thread and then the SDC signals that it needs to do some low prio processing
-        // it can reenter. until you try to get the temp at the same time that we check for LFOSC calibration.
-        // reentrency is the concern
-        //  see mpsl_init.c, mpsl_low_priority_process is in the work handler mpsl_low_prio_work_handler,
-        // gets submitted in mpsl_low_prio_irq_handler, at MPSL_LOW_PRIO, #defined as MPSL_LOW_PRIO(4)
-        // So we need an IRQ. We will borrow QDEC, only very specific applications are using it.
 
-        k_work_submit(&die_temp_work);
+        // Note:  mpsl_temperature_get function must be executed in the same execution priority as
+        // mpsl_low_priority_process.
+        // If you call the function from a thread and then the SDC signals that it needs to do some low prio processing
+        // Issues can arise if you try to get the temp at the same time that we check for LFOSC calibration.
+        // see mpsl_init.c, but I've mapped out the exec order here
+        /*
+            -> mpsl_low_priority_process() -> gets called in mpsl_low_prio_work_handler
+            -> which has work submitted in mpsl_low_prio_irq_handler
+            -> set up via IRQ_CONNECT(CONFIG_MPSL_LOW_PRIO_IRQN, MPSL_LOW_PRIO, mpsl_low_prio_irq_handler, NULL,0);
+            -> mpsl_low_prio_work_handler is submitted in an IRQ, but the workQ itself is
+                K_PRIO_COOP(CONFIG_MPSL_THREAD_COOP_PRIO).
+                Check the readme or the mpsl kconfing init for a breakdown of what that prio is.
+        */
+        k_work_submit(&dietemp_work);
 
         LOG_INF("NRF_TEMP->TEMP=CONVERSION: %.2f deg C", (double)(g_die_temp / 4.0f));
         adv_mfg_data.die_temp = g_die_temp / 4;
