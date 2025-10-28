@@ -1,5 +1,5 @@
 # nrf54l15_die_temp
-A simple program to read the [TEMP](https://docs.nordicsemi.com/bundle/ps_nrf54L15/page/temp.html) of the nRF54L15 SoC on an nRF54L15-DK to a console.
+A simple program to read the [TEMP](https://docs.nordicsemi.com/bundle/ps_nrf54L15/page/temp.html) of the nRF54L15 SoC on an nRF54L15-DK to a console in NCS `v3.1.x`.
 
 From the manual page:
 > Operation
@@ -14,7 +14,7 @@ From the manual page:
 > [!IMPORTANT]
 >The MSPL will reserve access to the TEMP peripheral if you are enabling Bluetooth in application. TEMP is used for clock calibration when the internal RC oscillator is selected as the clock source.
 > In this case, you will use the nrfxlib API for MPSL to get the die temp via [mpsl_temperature_get()](https://docs.nordicsemi.com/bundle/nrfxlib-apis-latest/page/group_mpsl_temp_ga0be40956c96a226af1083a476fe57148.html#ga0be40956c96a226af1083a476fe57148)
-> See the [ble](https://github.com/droidecahedron/nrf54l15_die_temp/tree/ble) branch for an example application utilizing this.
+> See the [prio_fix](https://github.com/droidecahedron/nrf54l15_die_temp/tree/prio_fix) branch for an example application utilizing this.
 
 # Building and Running
 Typical `west build -b nrf54l15dk/nrf54l15/cpuapp -p` and `west flash --recover`.
