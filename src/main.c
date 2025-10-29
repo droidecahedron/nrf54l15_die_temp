@@ -109,7 +109,7 @@ void dietemp_thread(void *p1, void *p2, void *p3)
                 K_PRIO_COOP(CONFIG_MPSL_THREAD_COOP_PRIO).
                 Check the readme or the mpsl kconfing init for a breakdown of what that prio is.
         */
-        k_work_submit(&dietemp_work);
+        k_work_submit_to_queue(&dietemp_work_q , &dietemp_work);
 
         LOG_INF("NRF_TEMP->TEMP=CONVERSION: %.2f deg C", (double)(g_die_temp / 4.0f));
         adv_mfg_data.die_temp = g_die_temp / 4;
